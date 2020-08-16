@@ -58,7 +58,7 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
         const currentDate = Date.now();
         
         await Promise.all(namedTemperatureSensors.map(({name, temperature}) => {
-            const insertQuery = `INSERT INTO ${TABLE_NAME} VALUES ('${name}', '${temperature}', to_timestamp(${currentDate} / 1000.0))`
+            const insertQuery = `INSERT INTO ${TABLE_NAME} VALUES ('${name}', '${temperature}', to_timestamp(${currentDate} / 1000.0, 'YYYY-MM-DD HH:MI:SS'))`
             return client.query(insertQuery);
         }))
         
