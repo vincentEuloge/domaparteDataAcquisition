@@ -1,0 +1,29 @@
+{
+  "name": "data_acquisitor",
+  "version": "1.0.0",
+  "description": "Data acquisition for domaparte application",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "14.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vincentEuloge/domaparte.git"
+  },
+  "keywords": [
+    "hue"
+  ],
+  "author": "Vincent Euloge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vincentEuloge/domaparteDataAcquisition/issues"
+  },
+  "homepage": "https://github.com/vincentEuloge/domaparteDataAcquisition#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-hue-api": "4.0.8"
+  }
+}
