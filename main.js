@@ -2,7 +2,7 @@ require('dotenv').config()
 const v3 = require('node-hue-api').v3;
 const ApiEndpoint = require('./node_modules/node-hue-api/lib/api/http/endpoints/endpoint.js');
 const { Pool } = require('pg');
-
+const TABLE_NAME = 'temperatures';
 
 
 const remoteBootstrap = v3.api.createRemote(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
@@ -54,12 +54,21 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
                 return {uniqueid, temperature, name: sensorName}
             });
 
-        // const client = await pool.connect();
-        // const result = await client.query('SELECT * FROM test_table');
-        // const results = { 'results': (result) ? result.rows : null};
+        const client = await pool.connect();
+        const currentDate = Date.now();
+        
+        await Promise.all(namedTemperatureSensors.map(({name, temperature}) => {
+            const insertQuery = `
+                INSERT INTO ${TABLE_NAME} VALUES (${name}, ${temperature}, ${currentDate});
+            `
+            return client.query(insertQuery);
+        }))
+        
+        const result = await client.query(`SELECT * FROM ${TABLE_NAME}`);
+        const results = { 'results': (result) ? result.rows : null};
         
         console.log(namedTemperatureSensors);
-        // console.log(results);
+        console.log(results);
 
         // client.release();
         process.exit(0);
