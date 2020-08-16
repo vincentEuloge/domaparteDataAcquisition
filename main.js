@@ -1,8 +1,18 @@
 require('dotenv').config()
 const v3 = require('node-hue-api').v3;
 const ApiEndpoint = require('./node_modules/node-hue-api/lib/api/http/endpoints/endpoint.js');
+const { Pool } = require('pg');
+
+
 
 const remoteBootstrap = v3.api.createRemote(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
 
 function getAuthCodeUrl(APP_ID, STATE){
     return `${remoteBootstrap.getAuthCodeUrl('node-hue-api-remote', APP_ID, STATE)}`;
@@ -44,7 +54,14 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
                 return {uniqueid, temperature, name: sensorName}
             });
 
+        const client = await pool.connect();
+        const result = await client.query('SELECT * FROM test_table');
+        const results = { 'results': (result) ? result.rows : null};
+        
         console.log(namedTemperatureSensors);
+        console.log(results);
+
+        client.release();
         process.exit(0);
     } catch(err){
         console.error('Failed to get a remote connection using token');
