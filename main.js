@@ -55,7 +55,7 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
             });
 
         const client = await pool.connect();
-        const currentDate = new Date(),
+        const currentDate = new Date();
         
         await Promise.all(namedTemperatureSensors.map(({name, temperature}) => {
             const insertQuery = `INSERT INTO ${TABLE_NAME} VALUES ('${name}', '${temperature}', '${currentDate}')`
