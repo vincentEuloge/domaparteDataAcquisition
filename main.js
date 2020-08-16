@@ -54,14 +54,14 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
                 return {uniqueid, temperature, name: sensorName}
             });
 
-        const client = await pool.connect();
-        const result = await client.query('SELECT * FROM test_table');
-        const results = { 'results': (result) ? result.rows : null};
+        // const client = await pool.connect();
+        // const result = await client.query('SELECT * FROM test_table');
+        // const results = { 'results': (result) ? result.rows : null};
         
         console.log(namedTemperatureSensors);
-        console.log(results);
+        // console.log(results);
 
-        client.release();
+        // client.release();
         process.exit(0);
     } catch(err){
         console.error('Failed to get a remote connection using token');
