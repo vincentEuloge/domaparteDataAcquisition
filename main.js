@@ -48,7 +48,7 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
             .map(({uniqueid, temperature}) => {
             sensorName = sensors
                 .find(({uniqueid: presenceUniqueId, type}) => 
-                presenceUniqueId && type === "ZLLPresence" && presenceUniqueId.includes(uniqueid.slice(0,-1))
+                    presenceUniqueId && type === "ZLLPresence" && presenceUniqueId.includes(uniqueid.slice(0,-1))
                 ).name;
             
                 return {uniqueid, temperature, name: sensorName}
@@ -56,19 +56,14 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
 
         const client = await pool.connect();
         const currentDate = new Date();
+        const insertQuery = `INSERT INTO ${TABLE_NAME}(date, sensor_name1, temperature1, sensor_name2, temperature2, sensor_name3, temperature3) VALUES ($1, $2, $3, $4, $5, $6, $7)`
         
-        await Promise.all(namedTemperatureSensors.map(({name, temperature}) => {
-            const insertQuery = `INSERT INTO ${TABLE_NAME}(sensor_name, temperature, date) VALUES ($1, $2, $3)`
-            return client.query(insertQuery, [name, temperature, currentDate]);
-        }))
+        await client.query(
+            insertQuery,
+            [currentDate, ...namedTemperatureSensors.map(({name, temperature}) => [name, temperature]).flat()]
+        );
         
-        const result = await client.query(`SELECT * FROM ${TABLE_NAME}`);
-        const results = { 'results': (result) ? result.rows : null};
-        
-        console.log(namedTemperatureSensors);
-        console.log(results);
 
-        // client.release();
         process.exit(0);
     } catch(err){
         console.error('Failed to get a remote connection using token');
