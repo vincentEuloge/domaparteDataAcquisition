@@ -1,6 +1,5 @@
 require('dotenv').config()
 const v3 = require('node-hue-api').v3;
-const ApiEndpoint = require('./node_modules/node-hue-api/lib/api/http/endpoints/endpoint.js');
 const { Pool } = require('pg');
 const TABLE_NAME = 'temperatures';
 
@@ -35,25 +34,22 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
         console.log(`The Refresh Token is valid until: ${new Date(remoteCredentials.tokens.refresh.expiresAt)}`);
         // console.log('\nNote: You should securely store the tokens and username from above as you can use them to connect\n'+ 'in the future.');
 
-        const request = new ApiEndpoint().get().uri('/<username>/sensors').acceptJson().pureJson();
-
-        const rawSensors = await api._getTransport().execute(request);
-        const sensors = Object.values(rawSensors);
+        const sensors = Object.values(await api.sensors.getAll());
 
         const temperatureSensors = sensors
-            .filter(({type}) => type === "ZLLTemperature")
-            .map(({uniqueid, state: {temperature}}) => ({uniqueid, temperature}));
+            .filter((sensor) => sensor.type === "ZLLTemperature")
+            .map((sensor) => ({uniqueid: sensor.uniqueid, temperature: sensor.temperature}));
 
         const namedTemperatureSensors = temperatureSensors
             .map(({uniqueid, temperature}) => {
             sensorName = sensors
-                .find(({uniqueid: presenceUniqueId, type}) => 
-                    presenceUniqueId && type === "ZLLPresence" && presenceUniqueId.includes(uniqueid.slice(0,-1))
+                .find((sensor) => 
+                    sensor.uniqueid && sensor.type === "ZLLPresence" && sensor.uniqueid.includes(uniqueid.slice(0,-1))
                 ).name;
             
                 return {uniqueid, temperature, name: sensorName}
             });
-
+        
         const client = await pool.connect();
         const currentDate = new Date();
         const insertQuery = `INSERT INTO ${TABLE_NAME}(date, sensor_name1, temperature1, sensor_name2, temperature2, sensor_name3, temperature3) VALUES ($1, $2, $3, $4, $5, $6, $7)`
