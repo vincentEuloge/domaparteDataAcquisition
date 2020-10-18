@@ -20,7 +20,7 @@ function getAuthCodeUrl(APP_ID, STATE){
 async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
     // Exchange the code for tokens and connect to the Remote Hue API
     try{
-        // remoteBootstrap.connectWithCode(authorizationCode)
+        // const api = await remoteBootstrap.connectWithCode(authorizationCode)
         const api = await remoteBootstrap.connectWithTokens(
             TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME
         );
@@ -33,6 +33,12 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
         console.log(`The Access Token is valid until:  ${new Date(remoteCredentials.tokens.access.expiresAt)}`);
         console.log(`The Refresh Token is valid until: ${new Date(remoteCredentials.tokens.refresh.expiresAt)}`);
         // console.log('\nNote: You should securely store the tokens and username from above as you can use them to connect\n'+ 'in the future.');
+
+        // const refreshToken = await api.remote.refreshTokens();
+        // console.log(refreshToken);
+        // const remoteCredentials2 = api.remote.getRemoteAccessCredentials();
+        // console.log(`The Access Token is valid until:  ${new Date(remoteCredentials2.tokens.access.expiresAt)}`);
+        // console.log(`The Refresh Token is valid until: ${new Date(remoteCredentials2.tokens.refresh.expiresAt)}`);
 
         const sensors = Object.values(await api.sensors.getAll());
 
@@ -52,7 +58,7 @@ async function connectAndGetData(TOKEN_ACCESS, TOKEN_REFRESH, TOKEN_USERNAME){
         
         const client = await pool.connect();
         const currentDate = new Date();
-        const insertQuery = `INSERT INTO ${TABLE_NAME}(date, sensor_name1, temperature1, sensor_name2, temperature2, sensor_name3, temperature3) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+        const insertQuery = `INSERT INTO ${TABLE_NAME}(date, sensor_name1, temperature1, sensor_name2, temperature2, sensor_name3, temperature3, sensor_name4, temperature4) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
         
         await client.query(
             insertQuery,
@@ -73,3 +79,8 @@ connectAndGetData(
     process.env.TOKEN_REFRESH,
     process.env.TOKEN_USERNAME,
 )
+
+// console.log(getAuthCodeUrl(
+//     process.env.APP_ID,
+//     process.env.STATE,
+// ))
